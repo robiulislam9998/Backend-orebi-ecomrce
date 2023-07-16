@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const sendEmail = require("../helpers/sendEmail");
 const otpTemplet = require("../helpers/otpTemplet");
 const aleaRNGFactory = require("number-generator/lib/aleaRNGFactory");
+const nodemailer = require("nodemailer");
 
 let registrationController = async (req, res) => {
   const { fullName, email, password, avater, facebookId } = req.body;
@@ -40,7 +41,24 @@ let registrationController = async (req, res) => {
         { new: true }
       );
 
-      sendEmail(email, randomNum, otpTemplet);
+      // sendEmail(email, randomNum, otpTemplet);
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+
+        auth: {
+          user: "hackedby1947@gmail.com",
+          pass: "bmylyncbjnqrjvar",
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: "hackedby1947@gmail.com",
+        to: email,
+        subject: "OTP ✔",
+        html: otpTemplet(randomNum),
+      });
+
       setTimeout(async function () {
         console.log("delate");
         let rendomOTPStore = await User.findOneAndUpdate(
